@@ -15,11 +15,11 @@ ARG FIREFOX_VERSION=78.0.2
 ARG FIREFOXDRIVER_VERSION=0.26.0
 
 #Step 4 : Install firefox
-RUN wget --no-verbose -O /tmp/firefox.tar.bz2 https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.tar.bz2 \
+RUN wget --no-verbose -O /tmp/firefox.tar.bz2 https://download-installer.cdn.mozilla.net/pub/firefox/releases/78.0.2/linux-x86_64/en-US/firefox-78.0.2.tar.bz2 \
   && bunzip2 /tmp/firefox.tar.bz2 \
   && tar xvf /tmp/firefox.tar \
-  && mv /firefox /opt/firefox-$FIREFOX_VERSION \
-  && ln -s /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox
+  && mv /firefox /opt/firefox-$78.0.2 \
+  && ln -s /opt/firefox-$78.0.2/firefox /usr/bin/firefox
 #Step 5: Install Geckodriver
 RUN wget https://github.com/mozilla/geckodriver/releases/download/v$FIREFOXDRIVER_VERSION/geckodriver-v$FIREFOXDRIVER_VERSION-linux64.tar.gz \
     && tar -xf geckodriver-v0.26.0-linux64.tar.gz \
