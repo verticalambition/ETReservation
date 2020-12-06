@@ -76,6 +76,4 @@ WORKDIR /app
 RUN chmod +x /app/bin/chromedriver
 RUN chmod +x /app/bin/geckodriver
 
-
-CMD ["sleep", "1000"]
-#ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["java", "-jar", "firstcrawler-0.0.1-SNAPSHOT.jar"]

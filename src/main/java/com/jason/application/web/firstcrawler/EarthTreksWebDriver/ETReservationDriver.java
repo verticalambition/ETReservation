@@ -7,9 +7,9 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 
 @Component
@@ -17,20 +17,23 @@ public class ETReservationDriver {
 
 
     private static WebDriver driver;
-    private static boolean headless = false;
+    private static boolean headless = true;
 
-    public ETReservationDriver() {
-        System.setProperty("webdriver.gecko.driver", "/home/jason/development/tools/web/geckodriver/geckodriver");
+
+    public ETReservationDriver(@Value("${firefoxLocation}") final String firefoxLocation, @Value("${geckodriverLocation}") final String geckodriverLocation) {
+        System.out.println("\n" + firefoxLocation +"\n" + geckodriverLocation);
+        System.setProperty("webdriver.gecko.driver", geckodriverLocation);
         FirefoxOptions options = new FirefoxOptions();
-        options.setBinary("/usr/bin/firefox");
+        options.setBinary(firefoxLocation);
         if(headless) {
             options.addArguments("-headless");
         }
         driver = new FirefoxDriver(options);
-        new WebDriverWait(driver, 25);
+
     }
 
-    public String processPageOne(int hour, String morningOrAfternoon) {
+    public String processPageOne(int hour, String morningOrAfternoon, String week, String dayOfWeek) {
+        new WebDriverWait(driver, 25);
         //Get contents of page
         //driver.get("file:///home/jason/IdeaProjects/applications/web/offlineHTML/app.rockgympro.com.html");
         //driver.get("file:///home/jason/IdeaProjects/applications/web/offlineHTML/app.rockgympro.commainwhenslotavail.html");
@@ -40,9 +43,10 @@ public class ETReservationDriver {
         //Select One Member
         driver.findElement(By.xpath("/html/body/div[1]/div/form/div[6]/div/fieldset/table/tbody/tr[1]/td[1]/a[2]")).click();
         //This looks at particular day requested for the month. Currently will have to be determined by user by row/column of calendar
-        WebElement day = driver.findElement(By.xpath("/html/body/div[1]/div/form/div[6]/fieldset/div/div/table/tbody/tr[5]/td[7]"));
+        WebElement day = driver.findElement(By.xpath("/html/body/div[1]/div/form/div[6]/fieldset/div/div/table/tbody/tr[" + week + "]/td[" + dayOfWeek + "]"));
         //See if it says unavailable or sold out. Either is bad for us. Doesn't really matter which it is
         String dayStatus = day.getAttribute("class");
+        System.out.println("Day Status is " + dayStatus + " and date is " + day.getText());
         if (dayStatus.contains("unavailable") || dayStatus.contains("soldout")) {
             System.out.println("Day is currently unselectable due to being unavailable or soldout");
             return "Day Sold Out";
@@ -61,14 +65,15 @@ public class ETReservationDriver {
                     System.out.println(slot.getText());
                     slot.findElement(By.tagName("a")).click();
                     waitForNextAction(2500, 3500);
-                    processPageTwo();
+                    System.out.println("Finished Processing Page One");
+                    return processPageTwo();
                 }
             }
-            return "Processed Request";
+            return ("The slot attempting to reserve " + hour + " " + morningOrAfternoon + " was unavailable to book");
         }
     }
 
-    public void processPageTwo() {
+    public String processPageTwo() {
         //driver.get("file:///home/jason/IdeaProjects/applications/web/offlineHTML/app.rockgympro.com.userdetails.html");
 
         //First name
@@ -110,11 +115,12 @@ public class ETReservationDriver {
         waitForNextAction(200, 400);
         //Move on to next page
         driver.findElement(By.xpath("/html/body/div[1]/div/form/a[2]")).click();
-        processPageThree();
         waitForNextAction(2000, 3000);
+        System.out.println("Finished Processing Page Two");
+        return processPageThree();
     }
 
-    public void processPageThree() {
+    public String processPageThree() {
         //driver.get("file:///home/jason/IdeaProjects/applications/web/offlineHTML/app.rockgympro.comconfirmation.html");
         //Enter Email address
         driver.findElement(By.xpath("//*[@id=\"customer-email\"]")).sendKeys("jasonelish@gmail.com");
@@ -125,13 +131,15 @@ public class ETReservationDriver {
         waitForNextAction(200, 400);
 
         //Check box related to cancellation fee
-        driver.findElement(By.xpath("/html/body/div[1]/div/form/fieldset[5]/div/strong[8]/span/input")).click();
+        driver.findElement(By.xpath("//*[@id=\"theform\"]/fieldset[5]/div/strong[9]/span/input")).click();
         waitForNextAction(200, 400);
 
         //Complete the Booking
-        //driver.findElement(By.xpath("//*[@id=\"confirm_booking_button\"]")).click();
+        driver.findElement(By.xpath("//*[@id=\"confirm_booking_button\"]")).click();
         waitForNextAction(3000, 5000);
         driver.close();
+        System.out.println("Finished Processing Page 3");
+        return "Reservation Process Finished. Source returned from website was " + driver.getPageSource();
     }
 
     public void waitForNextAction(int min, int max){
