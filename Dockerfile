@@ -21,15 +21,15 @@ RUN dpkg -i /chrome.deb || apt-get install -yf
 RUN rm /chrome.deb
 
 # Install firefox
-RUN wget --no-verbose -O /tmp/firefox.tar.bz2 https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.tar.bz2 \
+RUN wget --no-verbose -O /tmp/firefox.tar.bz2 https://download-installer.cdn.mozilla.net/pub/firefox/releases/78.0.2/linux-x86_64/en-US/firefox-78.0.2.tar.bz2 \
   && bunzip2 /tmp/firefox.tar.bz2 \
   && tar xvf /tmp/firefox.tar \
-  && mv /firefox /opt/firefox-$FIREFOX_VERSION \
-  && ln -s /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox
+  && mv /firefox /opt/firefox-78.0.2 \
+  && ln -s /opt/firefox-78.0.2/firefox /usr/bin/firefox
 
 # Install chromedriver for Selenium
 RUN mkdir -p /app/bin
-RUN curl https://chromedriver.storage.googleapis.com/$CHROMDRIVER_VERSION/chromedriver_linux64.zip -o /tmp/chromedriver.zip \
+RUN curl https://chromedriver.storage.googleapis.com/83.0.4103.39/chromedriver_linux64.zip -o /tmp/chromedriver.zip \
     && unzip /tmp/chromedriver.zip -d /app/bin/ \
     && rm /tmp/chromedriver.zip
 
