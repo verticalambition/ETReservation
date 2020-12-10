@@ -2,10 +2,9 @@ package com.jason.application.web.firstcrawler.rest;
 
 
 import com.jason.application.web.firstcrawler.EarthTreksWebDriver.ETReservationDriver;
+import com.jason.application.web.firstcrawler.Reservation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -15,11 +14,12 @@ public class RESTServer  {
     @Autowired
     ETReservationDriver earthTreksWebDriver;
 
-    @GetMapping("/et1/{hour}/{morningOrAfternoon}/{week}/{day}")
-    public String checkVRBForUpdates(@PathVariable int hour, @PathVariable String morningOrAfternoon, @PathVariable String week, @PathVariable String day)  {
-        System.out.println("Received request to attempt reservation");
-        System.out.println("Hour is " + hour + " morningOfAfternoon is " + morningOrAfternoon + " week is " + week + " day is " + day);
-        return earthTreksWebDriver.processPageOne(hour, morningOrAfternoon, day, week);
+    @PostMapping("/attemptreservation")
+    public String bookReservation(@RequestBody Reservation newReservation){
+        System.out.println("Received request to attempt reservation using a POST");
+        System.out.println("Hour is " + newReservation.getTime() + " morningOfAfternoon is " + newReservation.getAmpm() + " week is " + newReservation.getWeek() + " day is " + newReservation.getDay()
+        );
+        return earthTreksWebDriver.processPageOne(newReservation);
     }
 
     @GetMapping("/et2")
