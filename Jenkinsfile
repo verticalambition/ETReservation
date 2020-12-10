@@ -3,7 +3,9 @@ pipeline {
   stages {
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t etreservation .'
+        withMaven {
+      sh "mvn clean verify"
+    } // withMaven will discover the generated Maven artifacts, JUnit Surefire & FailSafe reports and FindBugs reports
       }
     }
 
