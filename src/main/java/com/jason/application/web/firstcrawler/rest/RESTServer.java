@@ -22,6 +22,10 @@ public class RESTServer  {
         return earthTreksWebDriver.processPageOne(newReservation);
     }
 
+    @GetMapping("/readycheck")
+    public String readinessCheck(){
+        return "Container is online and ready to receive requests";
+    }
     @GetMapping("/et2")
     public void processPageTwo(){
         earthTreksWebDriver.processPageTwo();
