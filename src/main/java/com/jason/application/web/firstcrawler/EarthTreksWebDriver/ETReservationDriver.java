@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class ETReservationDriver {
@@ -32,7 +33,7 @@ public class ETReservationDriver {
             options.addArguments("-headless");
         }
         driver = new FirefoxDriver(options);
-
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
     }
 
     public String processPageOne(Reservation newReservation) {
@@ -69,7 +70,7 @@ public class ETReservationDriver {
                 if(slot.getText().contains(" " + myReservation.getTime() + " " + myReservation.getAmpm() + " to ") && slot.getText().contains("Select")) {
                     System.out.println(slot.getText());
                     slot.findElement(By.tagName("a")).click();
-                    waitForNextAction(1200, 2300);
+                    waitForNextAction(1800, 2300);
                     System.out.println("Finished Processing Page One");
                     return processPageTwo();
                 }
@@ -120,16 +121,17 @@ public class ETReservationDriver {
         waitForNextAction(50, 100);
         //Move on to next page
         driver.findElement(By.xpath("/html/body/div[1]/div/form/a[2]")).click();
-        waitForNextAction(1000, 2000);
+        waitForNextAction(1800, 2000);
         System.out.println("Finished Processing Page Two");
         return processPageThree();
     }
 
     public String processPageThree() {
         //driver.get("file:///home/jason/IdeaProjects/applications/web/offlineHTML/app.rockgympro.comconfirmation.html");
+
         //Enter Email address
         driver.findElement(By.xpath("//*[@id=\"customer-email\"]")).sendKeys(myReservation.getUserDetails().getEmail());
-        waitForNextAction(50, 100);
+       // waitForNextAction(50, 100);
 
         //Enter Phone Number
         driver.findElement(By.xpath("//*[@id=\"customer-phone\"]")).sendKeys(myReservation.getUserDetails().getPhoneNumber());
@@ -143,7 +145,7 @@ public class ETReservationDriver {
         driver.findElement(By.xpath("//*[@id=\"confirm_booking_button\"]")).click();
         waitForNextAction(3000, 5000);
         String pageSourceResponse = driver.getPageSource();
-        driver.close();
+      //  driver.close();
         System.out.println("Finished Processing Page 3");
         return "Reservation Process Finished. Source returned from website was \n" + pageSourceResponse;
     }
