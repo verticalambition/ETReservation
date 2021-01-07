@@ -12,4 +12,4 @@ before_install:
 - chmod 600 ./deploy_key
 - echo -e "Host 161.35.250.136\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
-- ssh -o StrictHostKeyChecking=no -i ./deploy_key root@161.35.250.136 pwd
+- ssh -o StrictHostKeyChecking=no -i ./deploy_key root@161.35.250.136 "docker pull verticalambition/etreservationcreater:latest && docker-compose down && docker-compose up -d"
