@@ -19,22 +19,19 @@ public class RESTServer  {
         System.out.println("Received request to attempt reservation using a POST");
         System.out.println("Hour is " + newReservation.getTime() + " morningOfAfternoon is " + newReservation.getAmpm() + " week is " + newReservation.getWeek() + " day is " + newReservation.getDay()
         );
-        return earthTreksWebDriver.processPageOne(newReservation);
+        return earthTreksWebDriver.processPageOne(newReservation, false);
+    }
+    @PostMapping("/testreservation")
+    public String testBookReservation(@RequestBody Reservation newReservation){
+        System.out.println("Received request to attempt reservation using a POST");
+        System.out.println("Hour is " + newReservation.getTime() + " morningOfAfternoon is " + newReservation.getAmpm() + " week is " + newReservation.getWeek() + " day is " + newReservation.getDay()
+        );
+        return earthTreksWebDriver.processPageOne(newReservation, true);
     }
 
     @GetMapping("/readycheck")
     public String readinessCheck(){
         return "Container is online and ready to receive requests";
-    }
-    @GetMapping("/et2")
-    public void processPageTwo(){
-        earthTreksWebDriver.processPageTwo();
-    }
-
-    @GetMapping("/et3")
-    public void processPageThree(){
-
-        earthTreksWebDriver.processPageThree();
     }
 }
 

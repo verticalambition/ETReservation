@@ -21,6 +21,7 @@ public class ETReservationDriver {
 
     private static WebDriver driver;
     private static boolean headless = true;
+    private boolean testMode;
 
     private Reservation myReservation;
 
@@ -36,7 +37,8 @@ public class ETReservationDriver {
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
     }
 
-    public String processPageOne(Reservation newReservation) {
+    public String processPageOne(Reservation newReservation, boolean testMode) {
+        this.testMode = testMode;
         myReservation = newReservation;
         new WebDriverWait(driver, 25).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
         //Get contents of page
@@ -141,13 +143,18 @@ public class ETReservationDriver {
         driver.findElement(By.xpath("//*[@id=\"theform\"]/fieldset[5]/div/strong[9]/span/input")).click();
         waitForNextAction(50, 100);
 
-        //Complete the Booking
-        driver.findElement(By.xpath("//*[@id=\"confirm_booking_button\"]")).click();
-        waitForNextAction(3000, 5000);
-        String pageSourceResponse = driver.getPageSource();
+        //If this is a real reservation and not a test one
+        if(!testMode) {
+            //Complete the Booking
+            driver.findElement(By.xpath("//*[@id=\"confirm_booking_button\"]")).click();
+            waitForNextAction(3000, 5000);
+            String pageSourceResponse = driver.getPageSource();
+            return "Reservation Process Finished. Source returned from website was \n" + pageSourceResponse;
+        }
       //  driver.close();
         System.out.println("Finished Processing Page 3");
-        return "Reservation Process Finished. Source returned from website was \n" + pageSourceResponse;
+        return "Test - Finished Processing Page 3";
+
     }
 
     public void waitForNextAction(int min, int max){
