@@ -25,21 +25,29 @@ public class ETReservationDriver {
     private static boolean headless = true;
     private boolean testMode;
 
+    @Value("${firefoxLocation}")
+    private String firefoxLocation;
+
     private Reservation myReservation;
 
     public ETReservationDriver(@Value("${firefoxLocation}") final String firefoxLocation, @Value("${geckodriverLocation}") final String geckodriverLocation) {
         System.out.println("\n" + firefoxLocation +"\n" + geckodriverLocation);
         System.setProperty("webdriver.gecko.driver", geckodriverLocation);
+//        FirefoxOptions options = new FirefoxOptions();
+//        options.setBinary(firefoxLocation);
+//        if(headless) {
+//            options.addArguments("-headless");
+//        }
+//        driver = new FirefoxDriver(options);
+    }
+
+    public String processPageOne(Reservation newReservation, boolean testMode) {
         FirefoxOptions options = new FirefoxOptions();
         options.setBinary(firefoxLocation);
         if(headless) {
             options.addArguments("-headless");
         }
         driver = new FirefoxDriver(options);
-
-    }
-
-    public String processPageOne(Reservation newReservation, boolean testMode) {
         this.testMode = testMode;
         myReservation = newReservation;
         this.wait = new WebDriverWait(driver, 10);
@@ -64,13 +72,13 @@ public class ETReservationDriver {
             //If we have the availability to still find something in this day
             System.out.println("This day has some openings");
             day.click();
-            //waitForNextAction(500, 750);
+            waitForNextAction(500, 750);
             //Get the table that contains all the time slots
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/form/fieldset/div[1]/table/tbody")));
-            WebElement timeSlotContainer = driver.findElement(By.xpath("/html/body/div[1]/div/form/fieldset/div[1]/table/tbody"));
+            WebElement timeSlotContainer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/form/fieldset/div[1]/table/tbody")));
+            //WebElement timeSlotContainer = driver.findElement(By.xpath("/html/body/div[1]/div/form/fieldset/div[1]/table/tbody"));
             //*[@id="offering-page-select-events-table"]/tbody
             //Get a List of individual time slot html tags
-            List<WebElement> possibleTimeSlots = timeSlotContainer.findElements(By.tagName("tr"));
+            List<WebElement> possibleTimeSlots = wait.until(ExpectedConditions.visibilityOfAllElements(timeSlotContainer.findElements(By.tagName("tr"))));
             //Look through slots to find time slot we want and then check if its bookable
             for (WebElement slot : possibleTimeSlots) {
                 if(slot.getText().contains(" " + myReservation.getTime() + " " + myReservation.getAmpm() + " to ") && slot.getText().contains("Select")) {
@@ -158,7 +166,7 @@ public class ETReservationDriver {
             String pageSourceResponse = driver.getPageSource();
             return "Reservation Process Finished. Source returned from website was \n" + pageSourceResponse;
         }
-      //  driver.close();
+        driver.close();
         System.out.println("Finished Processing Page 3");
         return "Test - Finished Processing Page 3";
 
