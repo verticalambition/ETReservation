@@ -7,6 +7,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,7 @@ public class ETReservationDriver {
 
 
     private static WebDriver driver;
+    private static WebDriverWait wait;
     private static boolean headless = true;
     private boolean testMode;
 
@@ -34,22 +36,23 @@ public class ETReservationDriver {
             options.addArguments("-headless");
         }
         driver = new FirefoxDriver(options);
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
     }
 
     public String processPageOne(Reservation newReservation, boolean testMode) {
         this.testMode = testMode;
         myReservation = newReservation;
-        new WebDriverWait(driver, 25).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+        this.wait = new WebDriverWait(driver, 10);
         //Get contents of page
         //driver.get("file:///home/jason/IdeaProjects/applications/web/offlineHTML/app.rockgympro.com.html");
         //driver.get("file:///home/jason/IdeaProjects/applications/web/offlineHTML/app.rockgympro.commainwhenslotavail.html");
         driver.get("https://app.rockgympro.com/b/widget/?a=offering&offering_guid=0077362cf5a04cfc9150386cfc7e6c03&random=5fbae5621d2f8&iframeid=&mode=p");
-        waitForNextAction(1000, 1500);
-
+        //waitForNextAction(1000, 1500);
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/form/div[6]/div/fieldset/table/tbody/tr[1]/td[1]/a[2]")));
         //Select One Member
         driver.findElement(By.xpath("/html/body/div[1]/div/form/div[6]/div/fieldset/table/tbody/tr[1]/td[1]/a[2]")).click();
         //This looks at particular day requested for the month. Currently will have to be determined by user by row/column of calendar
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/form/div[6]/fieldset/div/div/table/tbody/tr[" + myReservation.getWeek() + "]/td[" + myReservation.getDay() + "]")));
         WebElement day = driver.findElement(By.xpath("/html/body/div[1]/div/form/div[6]/fieldset/div/div/table/tbody/tr[" + myReservation.getWeek() + "]/td[" + myReservation.getDay() + "]"));
         //See if it says unavailable or sold out. Either is bad for us. Doesn't really matter which it is
         String dayStatus = day.getAttribute("class");
@@ -61,8 +64,9 @@ public class ETReservationDriver {
             //If we have the availability to still find something in this day
             System.out.println("This day has some openings");
             day.click();
-            waitForNextAction(500, 750);
+            //waitForNextAction(500, 750);
             //Get the table that contains all the time slots
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/form/fieldset/div[1]/table/tbody")));
             WebElement timeSlotContainer = driver.findElement(By.xpath("/html/body/div[1]/div/form/fieldset/div[1]/table/tbody"));
             //*[@id="offering-page-select-events-table"]/tbody
             //Get a List of individual time slot html tags
@@ -72,7 +76,7 @@ public class ETReservationDriver {
                 if(slot.getText().contains(" " + myReservation.getTime() + " " + myReservation.getAmpm() + " to ") && slot.getText().contains("Select")) {
                     System.out.println(slot.getText());
                     slot.findElement(By.tagName("a")).click();
-                    waitForNextAction(1800, 2300);
+                    //waitForNextAction(1800, 2300);
                     System.out.println("Finished Processing Page One");
                     return processPageTwo();
                 }
@@ -85,6 +89,7 @@ public class ETReservationDriver {
         //driver.get("file:///home/jason/IdeaProjects/applications/web/offlineHTML/app.rockgympro.com.userdetails.html");
 
         //First name
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"pfirstname-pindex-1-1\"]")));
         driver.findElement(By.xpath("//*[@id=\"pfirstname-pindex-1-1\"]")).sendKeys(myReservation.getUserDetails().getFirstName());
         waitForNextAction(50, 100);
 
@@ -123,7 +128,7 @@ public class ETReservationDriver {
         waitForNextAction(50, 100);
         //Move on to next page
         driver.findElement(By.xpath("/html/body/div[1]/div/form/a[2]")).click();
-        waitForNextAction(1800, 2000);
+        //waitForNextAction(1800, 2000);
         System.out.println("Finished Processing Page Two");
         return processPageThree();
     }
@@ -131,7 +136,9 @@ public class ETReservationDriver {
     public String processPageThree() {
         //driver.get("file:///home/jason/IdeaProjects/applications/web/offlineHTML/app.rockgympro.comconfirmation.html");
 
+
         //Enter Email address
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"customer-email\"]")));
         driver.findElement(By.xpath("//*[@id=\"customer-email\"]")).sendKeys(myReservation.getUserDetails().getEmail());
        // waitForNextAction(50, 100);
 
