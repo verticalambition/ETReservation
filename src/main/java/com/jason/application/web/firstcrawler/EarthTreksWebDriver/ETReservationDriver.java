@@ -164,10 +164,11 @@ public class ETReservationDriver {
             driver.findElement(By.xpath("//*[@id=\"confirm_booking_button\"]")).click();
             waitForNextAction(3000, 5000);
             String pageSourceResponse = driver.getPageSource();
+            driver.close();
+            System.out.println("Finished Processing Page 3");
             return "Reservation Process Finished. Source returned from website was \n" + pageSourceResponse;
         }
         driver.close();
-        System.out.println("Finished Processing Page 3");
         return "Test - Finished Processing Page 3";
 
     }
